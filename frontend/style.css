@@ -1,0 +1,20 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+.timer {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    color: white;
+    font-size: 2em;
+}
