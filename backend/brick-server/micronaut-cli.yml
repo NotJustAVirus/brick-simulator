@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: web.brick
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [app-name, http-client-test, java, java-application, json-schema, json-schema-validation, junit, logback, maven, maven-enforcer-plugin, micronaut-aot, micronaut-http-validation, netty-server, properties, readme, serialization-jackson, shade, static-resources, websocket]
