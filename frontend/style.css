@@ -11,7 +11,7 @@ body {
     position: relative;
 }
 
-.timer {
+#timer {
     position: absolute;
     top: 5%;
     left: 5%;

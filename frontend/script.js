@@ -69,3 +69,21 @@ function onWindowResize() {
 function render() {
     renderer.render( scene, camera );
 }
+
+let websocket = new WebSocket("ws://localhost:8080/ws");
+
+websocket.onopen = function (event) {
+    console.log("Connection established");
+};
+
+websocket.onmessage = function (event) {
+    document.getElementById("timer").innerHTML = event.data;
+};
+
+websocket.onclose = function (event) {
+    console.log("Connection closed");
+};
+
+setInterval(function () {
+    websocket.send("Hello from client");
+}, 5000);
