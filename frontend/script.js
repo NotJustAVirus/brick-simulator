@@ -70,6 +70,45 @@ function render() {
     renderer.render( scene, camera );
 }
 
+class Timer {
+    time = 0;
+    speed = 1;
+    interval = 200;
+    started = false;
+
+    updatedTime = null;
+    updatedTimeTime = 0;
+
+    constructor() {}
+
+    start(time) {
+        this.time = time;
+        this.timer = setInterval(() => {
+            if (this.updatedTimeTime !== 0) {
+                this.time = this.updatedTime + (Date.now() - this.updatedTimeTime);
+                this.updatedTime = null;
+                this.updatedTimeTime = 0;
+            } else {
+                this.time += this.interval * this.speed;
+            }
+            if (this.callback) {
+                this.callback(this.time);
+            }
+        }, this.interval);
+        this.started = true;
+    }
+
+    updateTime(time) {
+        this.updatedTime = time;
+        this.updatedTimeTime = Date.now();
+    }
+}
+
+let timer = new Timer();
+timer.callback = function (time) {
+    document.getElementById("timer").innerHTML = timeToString(time);
+}
+
 let websocket = new WebSocket("ws://localhost:8080/ws");
 
 websocket.onopen = function (event) {
@@ -77,7 +116,11 @@ websocket.onopen = function (event) {
 };
 
 websocket.onmessage = function (event) {
-    document.getElementById("timer").innerHTML = event.data;
+    if (!timer.started) {
+        timer.start(parseInt(event.data));
+    } else {
+        timer.updateTime(parseInt(event.data));
+    }
 };
 
 websocket.onclose = function (event) {
@@ -87,3 +130,37 @@ websocket.onclose = function (event) {
 setInterval(function () {
     websocket.send("Hello from client");
 }, 5000);
+
+function timeToString(time) {
+    let milliseconds = time;
+    let seconds = Math.floor(milliseconds / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    let days = Math.floor(hours / 24);
+    let years = Math.floor(days / 365);
+    // milliseconds = milliseconds % 1000;
+    seconds = seconds % 60;
+    minutes = minutes % 60;
+    hours = hours % 24;
+    days = days % 365;
+    // milliseconds = milliseconds.toString().padStart(3, "0");
+    seconds = seconds.toString().padStart(2, "0");
+    minutes = minutes.toString().padStart(2, "0");
+    hours = hours.toString().padStart(2, "0");
+    
+    let str = hours + ":" + minutes + ":" + seconds;
+    let yearsStr = "year";
+    let daysStr = "day";
+    if (days !== 1) {
+        daysStr += "s";
+    }
+    if (years > 0) {
+        if (years !== 1) {
+            yearsStr += "s";
+        }
+        str = years + " " + yearsStr + " " + days + " " + daysStr + " " + str;
+    } else if (days > 0) {
+        str = days + " " + daysStr + " " + str;
+    }
+    return str;
+}
