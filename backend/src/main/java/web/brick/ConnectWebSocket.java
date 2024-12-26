@@ -17,27 +17,32 @@ public class ConnectWebSocket {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectWebSocket.class);
     
     private final WebSocketBroadcaster broadcaster;
+    private final TimeMaster timeMaster = new TimeMaster();
     
     public ConnectWebSocket(WebSocketBroadcaster broadcaster) { 
         this.broadcaster = broadcaster;
+        timeMaster.start();
     }
 
     @OnOpen 
     public void onOpen(WebSocketSession session) {
         log("onOpen", session);
+        User user = timeMaster.newUser(session);
+        session.put("user", user);
         return;
     }
 
     @OnMessage 
     public void onMessage(String message, WebSocketSession session) {
         log("onMessage", session);
-        session.sendSync(System.currentTimeMillis());
+        // session.sendSync(System.currentTimeMillis());
         return;
     }
 
     @OnClose 
     public void onClose(WebSocketSession session) {
         log("onClose", session);
+        timeMaster.removeUser(session.get("user", User.class).get());
         return;
     }
 
