@@ -105,8 +105,13 @@ class Timer {
 }
 
 let timer = new Timer();
+let globalTimer = new Timer();
 timer.callback = function (time) {
     document.getElementById("timer").innerHTML = timeToString(time);
+}
+
+globalTimer.callback = function (time) {
+    document.getElementById("global-timer").innerHTML = timeToString(time);
 }
 
 let websocket = new WebSocket("ws://localhost:8080/ws");
@@ -116,10 +121,13 @@ websocket.onopen = function (event) {
 };
 
 websocket.onmessage = function (event) {
+    let data = JSON.parse(event.data);
     if (!timer.started) {
-        timer.start(parseInt(event.data));
+        timer.start(parseInt(data.time));
+        globalTimer.start(parseInt(data.totalTime));
     } else {
-        timer.updateTime(parseInt(event.data));
+        timer.updateTime(parseInt(data.time));
+        globalTimer.updateTime(parseInt(data.totalTime));
     }
 };
 

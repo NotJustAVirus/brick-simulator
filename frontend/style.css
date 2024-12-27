@@ -12,9 +12,13 @@ body {
 }
 
 #timer {
+    color: white;
+    font-size: 2em;
+}
+
+.box {
     position: absolute;
     top: 5%;
     left: 5%;
     color: white;
-    font-size: 2em;
 }
