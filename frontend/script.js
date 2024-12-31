@@ -152,23 +152,54 @@ function timeToString(time) {
     hours = hours % 24;
     days = days % 365;
     // milliseconds = milliseconds.toString().padStart(3, "0");
-    seconds = seconds.toString().padStart(2, "0");
-    minutes = minutes.toString().padStart(2, "0");
-    hours = hours.toString().padStart(2, "0");
+    // seconds = seconds.toString().padStart(2, "0");
+    // minutes = minutes.toString().padStart(2, "0");
+    // hours = hours.toString().padStart(2, "0");
+
+    let out = [];
     
-    let str = hours + ":" + minutes + ":" + seconds;
-    let yearsStr = "year";
-    let daysStr = "day";
-    if (days !== 1) {
-        daysStr += "s";
-    }
+    let str = "";
     if (years > 0) {
-        if (years !== 1) {
-            yearsStr += "s";
-        }
-        str = years + " " + yearsStr + " " + days + " " + daysStr + " " + str;
+        str = "year";
     } else if (days > 0) {
-        str = days + " " + daysStr + " " + str;
+        str = "day";
+    } else if (hours > 0) {
+        str = "hour";
+    } else if (minutes > 0) {
+        str = "minute";
+    } else {
+        str = "second";
     }
+
+    switch (str) {
+        case "year":
+            out.push(formatUnit(years, "year"));
+        case "day":
+            out.push(formatUnit(days, "day"));
+        case "hour":
+            out.push(formatUnit(hours, "hour"));
+        case "minute":
+            out.push(formatUnit(minutes, "minute"));
+        default:
+            out.push(formatUnit(seconds, "second"));
+            break;
+    }
+    str = "";
+    for (let i = 0; i < out.length; i++) {
+        str += out[i];
+        if (i < out.length - 2) {
+            str += ", ";
+        } else if (i < out.length - 1) {
+            str += " and ";
+        }
+    }
+
     return str;
+}
+
+function formatUnit(value, unit) {
+    if (value !== 1) {
+        unit += "s";
+    }
+    return value + " " + unit;
 }
