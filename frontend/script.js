@@ -9,32 +9,30 @@ init();
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x222222 );
+    scene.background = new THREE.Color(0x222222);
 
-    scene.add( new THREE.AmbientLight( 0xffffff, 2.7 ) );
+    scene.add(new THREE.AmbientLight(0xffffff, 2.7));
 
-    camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 500 );
+    camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 500);
 
-    // Z is up for objects intended to be 3D printed.
+    camera.up.set(0, 0, 1);
+    camera.position.set(0, - 9, 6);
 
-    camera.up.set( 0, 0, 1 );
-    camera.position.set( 0, - 9, 6 );
+    camera.add(new THREE.PointLight(0xffffff, 50));
 
-    camera.add( new THREE.PointLight( 0xffffff, 50 ) );
+    scene.add(camera);
 
-    scene.add( camera );
+    const grid = new THREE.GridHelper(50, 50, 0xffffff, 0x555555);
+    grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180));
+    scene.add(grid);
 
-    const grid = new THREE.GridHelper( 50, 50, 0xffffff, 0x555555 );
-    grid.rotateOnAxis( new THREE.Vector3( 1, 0, 0 ), 90 * ( Math.PI / 180 ) );
-    scene.add( grid );
-
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
     const loader = new GLTFLoader();
-    loader.load( 'model/red_brick_low.glb', function (gltf) {
+    loader.load('model/red_brick_low.glb', function (gltf) {
         let brick = gltf.scene.children[0];
         // brick.position.set(0.8, -0.1, 0);
         brick.rotation.x = Math.PI;
@@ -45,15 +43,15 @@ function init() {
         console.error(error);
     });
 
-    const controls = new OrbitControls( camera, renderer.domElement );
-    controls.addEventListener( 'change', render );
-    controls.target.set( 0, 0, 0 );
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.addEventListener('change', render);
+    controls.target.set(0, 0, 0);
     // controls.enableZoom = false;
     controls.maxDistance = 100;
     controls.minDistance = 5;
     controls.update();
 
-    window.addEventListener( 'resize', onWindowResize );
+    window.addEventListener('resize', onWindowResize);
 
 }
 
@@ -61,13 +59,13 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
     render();
 }
 
 function render() {
-    renderer.render( scene, camera );
+    renderer.render(scene, camera);
 }
 
 class Timer {
@@ -79,7 +77,7 @@ class Timer {
     updatedTime = null;
     updatedTimeTime = 0;
 
-    constructor() {}
+    constructor() { }
 
     start(time) {
         this.time = time;
@@ -157,7 +155,7 @@ function timeToString(time) {
     // hours = hours.toString().padStart(2, "0");
 
     let out = [];
-    
+
     let str = "";
     if (years > 0) {
         str = "year";
