@@ -16,15 +16,15 @@ function init() {
     camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 500);
 
     camera.up.set(0, 0, 1);
-    camera.position.set(0, - 9, 6);
+    camera.position.set(0, -18, 12);
 
     camera.add(new THREE.PointLight(0xffffff, 50));
 
     scene.add(camera);
 
-    const grid = new THREE.GridHelper(50, 50, 0xffffff, 0x555555);
-    grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180));
-    scene.add(grid);
+    // const grid = new THREE.GridHelper(50, 50, 0xffffff, 0x555555);
+    // grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180));
+    // scene.add(grid);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -50,7 +50,11 @@ function init() {
     controls.maxDistance = 100;
     controls.minDistance = 5;
     controls.update();
+    controls.autoRotate = true;
 
+    setInterval(() => {
+        controls.update();
+    }, 1000 / 30);
     window.addEventListener('resize', onWindowResize);
 
 }
