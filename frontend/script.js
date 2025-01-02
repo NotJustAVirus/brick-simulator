@@ -116,7 +116,7 @@ globalTimer.callback = function (time) {
     document.getElementById("global-timer").innerHTML = timeToString(time);
 }
 
-let websocket = new WebSocket("ws://localhost:8080/ws");
+let websocket = new WebSocket("/ws2");
 
 websocket.onopen = function (event) {
     console.log("Connection established");

@@ -1,0 +1,51 @@
+# networks:
+#     network1:
+#         driver: bridge
+#     network2:
+#         driver: bridge
+
+services:
+    proxy:
+        image: nginx:alpine
+        ports:
+            - '80:80'
+            # - '443:443'
+        volumes:
+             - ./frontend:/usr/share/nginx/html
+             - ./nginx/conf.d:/etc/nginx/conf.d
+            #  - ./ssl:/etc/nginx/ssl
+        # networks:
+        #     - network1
+        # depends_on:
+        #     - backend
+    # backend:
+    #     build:
+    #         dockerfile: Dockerfile
+    #     networks:
+    #         - network1
+    #         - network2
+    #     environment:
+    #         DB_HOST: database    # This is correct - matches the service name
+    #         DB_PORT: 3306
+    #         DB_USER: root       # Using root as defined in MYSQL_ROOT_PASSWORD
+    #         DB_PASS: Hyg57aff   # Matches MYSQL_ROOT_PASSWORD
+    #         DB_NAME: persondb
+    #     depends_on:
+    #         database:
+    #             condition: service_healthy
+
+    # database:
+    #     image: mysql:latest
+    #     container_name: mysql_db
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: Hyg57aff
+    #         MYSQL_DATABASE: persondb    # Added this to create the database
+    #     healthcheck:
+    #         test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1']
+    #         interval: 10s
+    #         timeout: 5s
+    #         retries: 5
+    #     volumes:
+    #         - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    #     networks:
+    #         - network2
