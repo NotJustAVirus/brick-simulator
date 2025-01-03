@@ -100,6 +100,11 @@ class Timer {
         this.started = true;
     }
 
+    stop() {
+        clearInterval(this.timer);
+        this.started = false;
+    }
+
     updateTime(time) {
         this.updatedTime = time;
         this.updatedTimeTime = Date.now();
@@ -116,30 +121,63 @@ globalTimer.callback = function (time) {
     document.getElementById("global-timer").innerHTML = timeToString(time);
 }
 
-let websocket = new WebSocket("/ws2");
+class WebSocketHandler {
+    websocket = null;
+    session = null;
 
-websocket.onopen = function (event) {
-    console.log("Connection established");
-};
+    constructor() {
+        this.session = getCookie("session");
+        this.connect();
 
-websocket.onmessage = function (event) {
-    let data = JSON.parse(event.data);
-    if (!timer.started) {
-        timer.start(parseInt(data.time));
-        globalTimer.start(parseInt(data.totalTime));
-    } else {
-        timer.updateTime(parseInt(data.time));
-        globalTimer.updateTime(parseInt(data.totalTime));
+        setInterval(() => {
+            this.websocket.send("ping");
+        }, 10000);
     }
-};
 
-websocket.onclose = function (event) {
-    console.log("Connection closed");
-};
+    onOpen(event) {
+        console.log("Connection opened");
+        if (this.session) {
+            this.websocket.send(this.session);
+        } else {
+            this.websocket.send("null");
+        }
+    }
 
-setInterval(function () {
-    websocket.send("Hello from client");
-}, 5000);
+    onMessage(event) {
+        let data = JSON.parse(event.data);
+        console.log(data);
+        if (!timer.started) {
+            timer.start(parseInt(data.time));
+            globalTimer.start(parseInt(data.totalTime));
+        } else {
+            timer.updateTime(parseInt(data.time));
+            globalTimer.updateTime(parseInt(data.totalTime));
+        }
+    }
+
+    onClose(event) {
+        console.log("Connection closed");
+        timer.stop();
+        globalTimer.stop();
+        let reconnect = setInterval(() => {
+            console.log("Reconnecting");
+            if (this.websocket.readyState === 3) {
+                this.connect();
+            } else {
+                clearInterval(reconnect);
+            }
+        }, 5000);
+    }
+
+    connect() {
+        this.websocket = new WebSocket("/ws");
+        this.websocket.onopen = this.onOpen.bind(this);
+        this.websocket.onmessage = this.onMessage.bind(this);
+        this.websocket.onclose = this.onClose.bind(this);
+    }
+}
+
+let ws = new WebSocketHandler();
 
 function timeToString(time) {
     let milliseconds = time;
@@ -204,4 +242,27 @@ function formatUnit(value, unit) {
         unit += "s";
     }
     return value + " " + unit;
+}
+
+
+function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
