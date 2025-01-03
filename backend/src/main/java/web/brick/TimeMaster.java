@@ -9,7 +9,6 @@ public class TimeMaster {
     private long timeCounting;
     private long timeLast;
     private ArrayList<User> users;
-    private int id = 0;
 
     public TimeMaster() {
         this.timeOld = 0;
@@ -39,8 +38,8 @@ public class TimeMaster {
         }.start();
     }
 
-    public User newUser(WebSocketSession session) {
-        User user = new User(id++, session);
+    public User newUser(WebSocketSession session, String id) {
+        User user = new User(id, session);
         users.add(user);
         return user;
     }

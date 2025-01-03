@@ -5,11 +5,11 @@ import web.brick.message.TimeSyncMessage;
 
 public class User {
     private WebSocketSession session;
-    private int id;
+    private String id;
     private long timeJoined;
     private long timeElapsed;
 
-    public User(int id, WebSocketSession session) {
+    public User(String id, WebSocketSession session) {
         this.id = id;
         this.timeJoined = System.currentTimeMillis();
         this.session = session;
@@ -32,7 +32,7 @@ public class User {
     @Override 
     public boolean equals(Object obj) {
         if (obj instanceof User) {
-            return ((User) obj).id == this.id;
+            return ((User) obj).id.equals(id);
         }
         return false;
     }

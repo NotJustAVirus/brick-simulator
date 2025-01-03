@@ -124,34 +124,43 @@ globalTimer.callback = function (time) {
 class WebSocketHandler {
     websocket = null;
     session = null;
+    sessionMessage = {
+        message: "session",
+        session: this.session
+    }
 
     constructor() {
-        this.session = getCookie("session");
+        this.session = getCookie("sessionId");
         this.connect();
 
         setInterval(() => {
-            this.websocket.send("ping");
+            // this.websocket.send("ping");
         }, 10000);
     }
 
     onOpen(event) {
         console.log("Connection opened");
-        if (this.session) {
-            this.websocket.send(this.session);
-        } else {
-            this.websocket.send("null");
+        if (this.session === "") {
+            this.session = null;
         }
+        this.sessionMessage.session = this.session;
+        this.websocket.send(JSON.stringify(this.sessionMessage));
     }
 
     onMessage(event) {
         let data = JSON.parse(event.data);
         console.log(data);
-        if (!timer.started) {
-            timer.start(parseInt(data.time));
-            globalTimer.start(parseInt(data.totalTime));
-        } else {
-            timer.updateTime(parseInt(data.time));
-            globalTimer.updateTime(parseInt(data.totalTime));
+        if (data.message === "session") {
+            this.session = data.session;
+            setCookie("sessionId", this.session, 1);
+        } else if (data.message === "timeSync") {
+            if (!timer.started) {
+                timer.start(parseInt(data.time));
+                globalTimer.start(parseInt(data.totalTime));
+            } else {
+                timer.updateTime(parseInt(data.time));
+                globalTimer.updateTime(parseInt(data.totalTime));
+            }
         }
     }
 
@@ -160,8 +169,8 @@ class WebSocketHandler {
         timer.stop();
         globalTimer.stop();
         let reconnect = setInterval(() => {
-            console.log("Reconnecting");
             if (this.websocket.readyState === 3) {
+                console.log("Reconnecting");
                 this.connect();
             } else {
                 clearInterval(reconnect);
