@@ -27,6 +27,7 @@ public class ConnectWebSocket {
     @OnOpen 
     public void onOpen(WebSocketSession session) {
         log("onOpen", session);
+        // set cookie
         User user = timeMaster.newUser(session);
         session.put("user", user);
         return;

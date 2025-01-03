@@ -1,6 +1,7 @@
 package web.brick;
 
 import io.micronaut.websocket.WebSocketSession;
+import web.brick.message.TimeSyncMessage;
 
 public class User {
     private WebSocketSession session;
