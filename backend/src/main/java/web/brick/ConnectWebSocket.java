@@ -8,9 +8,8 @@ import io.micronaut.websocket.annotation.OnMessage;
 import io.micronaut.websocket.annotation.OnOpen;
 import io.micronaut.websocket.annotation.ServerWebSocket;
 import web.brick.message.Message;
-import web.brick.message.SessionMessage;
+import web.brick.message.UserMessage;
 
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +42,18 @@ public class ConnectWebSocket {
         try {
             Message msg = objectMapper.readValue(message, Message.class);
             if (msg == null) { return; }
-            if (msg.getMessage().equals("session")) {
-                SessionMessage sessionMessage = objectMapper.readValue(message, SessionMessage.class);
-                String sessionId = sessionMessage.getSession();
-                if (sessionId == null) {
+            if (msg.getMessage().equals("user")) {
+                UserMessage userMessage = objectMapper.readValue(message, UserMessage.class);
+                String uuidStr = userMessage.getUuid();
+                if (uuidStr == null) {
                     UUID uuid = UUID.randomUUID();
-                    sessionId = uuid.toString();
-                    User user = timeMaster.newUser(session, sessionId);
+                    uuidStr = uuid.toString();
+                    User user = timeMaster.newUser(session, uuidStr);
                     session.put("user", user);
-                    SessionMessage newSessionMessage = new SessionMessage(sessionId);
-                    session.sendSync(newSessionMessage);
+                    UserMessage newUserMessage = new UserMessage(uuidStr);
+                    session.sendSync(newUserMessage);
                 } else {
-                    User user = timeMaster.newUser(session, sessionId);
+                    User user = timeMaster.newUser(session, uuidStr);
                     session.put("user", user);
                 }
             }

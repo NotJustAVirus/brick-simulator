@@ -127,14 +127,12 @@ globalTimer.callback = function (time) {
 
 class WebSocketHandler {
     websocket = null;
-    session = null;
-    sessionMessage = {
-        message: "session",
-        session: this.session
-    }
+    uuid = null;
+
+    reconnect = null;
 
     constructor() {
-        this.session = getCookie("sessionId");
+        this.uuid = getCookie("uuid");
         this.connect();
 
         setInterval(() => {
@@ -144,19 +142,22 @@ class WebSocketHandler {
 
     onOpen(event) {
         console.log("Connection opened");
-        if (this.session === "") {
-            this.session = null;
+        if (this.uuid === "") {
+            this.uuid = null;
         }
-        this.sessionMessage.session = this.session;
-        this.websocket.send(JSON.stringify(this.sessionMessage));
+        let message = {
+            message: "user",
+            uuid: this.uuid
+        };
+        this.websocket.send(JSON.stringify(message));
     }
 
     onMessage(event) {
         let data = JSON.parse(event.data);
         console.log(data);
-        if (data.message === "session") {
-            this.session = data.session;
-            setCookie("sessionId", this.session, 1);
+        if (data.message === "user") {
+            this.uuid = data.uuid;
+            setCookie("uuid", this.uuid, 1);
         } else if (data.message === "timeSync") {
             if (data.isTotalTime) {
                 globalTimer.updateTime(parseInt(data.time));
@@ -170,12 +171,12 @@ class WebSocketHandler {
         console.log("Connection closed");
         timer.stop();
         globalTimer.stop();
-        let reconnect = setInterval(() => {
+        this.reconnect = setInterval(() => {
             if (this.websocket.readyState === 3) {
                 console.log("Reconnecting");
                 this.connect();
             } else {
-                clearInterval(reconnect);
+                clearInterval(this.reconnect);
             }
         }, 5000);
     }
