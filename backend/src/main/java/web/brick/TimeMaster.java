@@ -1,6 +1,7 @@
 package web.brick;
 
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
@@ -26,14 +27,14 @@ public class TimeMaster {
             @Override
             public void run() {
                 while (true) {
-                    update();
-                    long time = timeCounting + timeOld;
-                    broadcaster.broadcastSync(new TimeSyncMessage(time, true));
-                    for (User user : users.values()) {
-                        try {
-                            user.syncTime();
-                        } catch (Exception e) {}
-                    }
+                    try {
+                        update();
+                        long time = timeCounting + timeOld;
+                        broadcaster.broadcastSync(new TimeSyncMessage(time, true));
+
+                        clean();
+
+                    } catch (Exception e) {}
 
                     try {
                         Thread.sleep(10000);
@@ -45,30 +46,44 @@ public class TimeMaster {
         }.start();
     }
 
-    public User newUser(WebSocketSession session, String id) {
-        long time = DatabaseManager.getInstance().getUser(id);
-        User user = new User(id, session);
-        if (time != -1) {
-            user.setOldTime(time);
+    public User addSession(WebSocketSession session, String uuid) {
+        User user = users.get(uuid);
+        if (user == null) {
+            long time = DatabaseManager.getInstance().getUserTime(uuid);
+            if (time != -1) {
+                timeOld -= time;
+                user = new User(uuid, time);
+            } else {
+                user = new User(uuid, 0);
+            }
+            users.put(uuid, user);
         }
-        users.put(id, user);
+        user.addSession(new Session(session));
         return user;
     }
 
-    public void removeUser(User user) {
-        long time = user.getTotalTime();
-        timeOld += time;
-        if (DatabaseManager.getInstance().addUser(user.getId(), time)) {
-            DatabaseManager.getInstance().updateUser(user.getId(), time);
+    private void clean() {
+        for (User user : users.values()) {
+            if (user.clean()) {
+                users.remove(user.getUuid());
+                long time = user.getTimeElapsed(0);
+                DatabaseManager.getInstance().setUserTime(user.getUuid(), time);
+                timeOld += time;
+            }
         }
-        users.remove(user.getId());
     }
 
     private void update() {
         timeLast = System.currentTimeMillis();
         timeCounting = 0;
         for (User user : users.values()) {
-            timeCounting += user.update(timeLast);
+            long elapsed = user.getTimeElapsed(timeLast);
+            timeCounting += elapsed;
+            broadcaster.broadcastSync(new TimeSyncMessage(elapsed, false), user(user.getUuid()));
         }
+    }
+
+    private Predicate<WebSocketSession> user(String uuid) { 
+        return s -> s.get("user", User.class).get().getUuid().equals(uuid);
     }
 }

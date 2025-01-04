@@ -48,14 +48,11 @@ public class ConnectWebSocket {
                 if (uuidStr == null) {
                     UUID uuid = UUID.randomUUID();
                     uuidStr = uuid.toString();
-                    User user = timeMaster.newUser(session, uuidStr);
-                    session.put("user", user);
-                    UserMessage newUserMessage = new UserMessage(uuidStr);
-                    session.sendSync(newUserMessage);
-                } else {
-                    User user = timeMaster.newUser(session, uuidStr);
-                    session.put("user", user);
                 }
+                User user = timeMaster.addSession(session, uuidStr);
+                session.put("user", user);
+                UserMessage newUserMessage = new UserMessage(uuidStr);
+                session.sendAsync(newUserMessage);
             }
         } catch (Exception e) {
             log("unable to parse message", session);
@@ -67,7 +64,7 @@ public class ConnectWebSocket {
     @OnClose 
     public void onClose(WebSocketSession session) {
         log("onClose", session);
-        timeMaster.removeUser(session.get("user", User.class).get());
+        session.get("user", User.class).get().removeSession(session.getId());
         return;
     }
 

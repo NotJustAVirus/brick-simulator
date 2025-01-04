@@ -25,10 +25,10 @@ public class DatabaseManager {
         return instance;
     }
     
-    public boolean addUser(String uuid, long time) {
+    public boolean setUserTime(String uuid, long time) {
         try {
             connection.createStatement().executeUpdate(
-                "INSERT INTO users (uuid, time) VALUES ('" + uuid + "', " + time + ")");
+                "INSERT INTO users (uuid, time) VALUES ('" + uuid + "', " + time + ") ON DUPLICATE KEY UPDATE time = " + time + ";");
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -36,18 +36,7 @@ public class DatabaseManager {
         }
     }
 
-    public boolean updateUser(String uuid, long time) {
-        try {
-            connection.createStatement().executeUpdate(
-                "UPDATE users SET time = " + time + " WHERE uuid = '" + uuid + "'");
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public long getUser(String uuid) {
+    public long getUserTime(String uuid) {
         try {
             var resultSet = connection.createStatement().executeQuery(
                 "SELECT * FROM users WHERE uuid = '" + uuid + "'");

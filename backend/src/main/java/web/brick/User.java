@@ -1,48 +1,45 @@
 package web.brick;
 
-import io.micronaut.websocket.WebSocketSession;
-import web.brick.message.TimeSyncMessage;
+import java.util.HashMap;
 
 public class User {
-    private WebSocketSession session;
-    private String id;
-    private long timeJoined;
-    private long timeElapsed;
-    private long oldTime;
+    private String uuid;
+    private long pastTime;
+    private HashMap<String, Session> sessions;
 
-    public User(String id, WebSocketSession session) {
-        this.id = id;
-        this.timeJoined = System.currentTimeMillis();
-        this.session = session;
+    public User(String uuid, long pastTime) {
+        this.uuid = uuid;
+        this.pastTime = pastTime;
+        this.sessions = new HashMap<>();
     }
 
-    public void syncTime() {
-        TimeSyncMessage message = new TimeSyncMessage(timeElapsed + oldTime, false);
-        session.sendAsync(message);
+    public void addSession(Session session) {
+        sessions.put(session.getId(), session);
     }
 
-    public long update(long timeNow) {
-        timeElapsed = timeNow - timeJoined;
-        return timeElapsed;
+    public String getUuid() {
+        return uuid;
     }
 
-    public long getTotalTime() {
-        return System.currentTimeMillis() - timeJoined + oldTime;
+    public void removeSession(String id) {
+        pastTime += sessions.get(id).getTimeElapsed(System.currentTimeMillis());
+        sessions.remove(id);
     }
 
-    @Override 
-    public boolean equals(Object obj) {
-        if (obj instanceof User) {
-            return ((User) obj).id.equals(id);
+    public long getTimeElapsed(long timeLast) {
+        long timeElapsed = 0;
+        for (Session session : sessions.values()) {
+            timeElapsed += session.getTimeElapsed(timeLast);
         }
-        return false;
+        return timeElapsed + pastTime;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setOldTime(long oldTime) {
-        this.oldTime = oldTime;
+    public boolean clean() {
+        for (Session session : sessions.values()) {
+            if (session.isClosed()) {
+                sessions.remove(session.getId());
+            }
+        }
+        return sessions.isEmpty();
     }
 }
