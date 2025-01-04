@@ -106,6 +106,10 @@ class Timer {
     }
 
     updateTime(time) {
+        if (!this.started) {
+            this.start(time);
+            return;
+        }
         this.updatedTime = time;
         this.updatedTimeTime = Date.now();
     }
@@ -154,12 +158,10 @@ class WebSocketHandler {
             this.session = data.session;
             setCookie("sessionId", this.session, 1);
         } else if (data.message === "timeSync") {
-            if (!timer.started) {
-                timer.start(parseInt(data.time));
-                globalTimer.start(parseInt(data.totalTime));
+            if (data.isTotalTime) {
+                globalTimer.updateTime(parseInt(data.time));
             } else {
                 timer.updateTime(parseInt(data.time));
-                globalTimer.updateTime(parseInt(data.totalTime));
             }
         }
     }

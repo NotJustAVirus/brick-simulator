@@ -15,9 +15,9 @@ public class User {
         this.session = session;
     }
 
-    public void syncTime(long time) {
-        TimeSyncMessage message = new TimeSyncMessage(timeElapsed, time);
-        session.sendSync(message);
+    public void syncTime() {
+        TimeSyncMessage message = new TimeSyncMessage(timeElapsed, false);
+        session.sendAsync(message);
     }
 
     public long update(long timeNow) {

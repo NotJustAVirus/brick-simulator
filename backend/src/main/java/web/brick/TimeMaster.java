@@ -2,19 +2,23 @@ package web.brick;
 
 import java.util.HashMap;
 
+import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
+import web.brick.message.TimeSyncMessage;
 
 public class TimeMaster {
     private long timeOld;
     private long timeCounting;
     private long timeLast;
     private HashMap<String, User> users;
+    private final WebSocketBroadcaster broadcaster;
 
-    public TimeMaster() {
+    public TimeMaster(WebSocketBroadcaster broadcaster) {
         this.timeOld = 0;
         this.timeCounting = 0;
         this.timeLast = System.currentTimeMillis();
         this.users = new HashMap<>();
+        this.broadcaster = broadcaster;
     }
 
     public void start() {
@@ -24,9 +28,10 @@ public class TimeMaster {
                 while (true) {
                     update();
                     long time = timeCounting + timeOld;
+                    broadcaster.broadcastSync(new TimeSyncMessage(time, true));
                     for (User user : users.values()) {
                         try {
-                            user.syncTime(time);
+                            user.syncTime();
                         } catch (Exception e) {}
                     }
 

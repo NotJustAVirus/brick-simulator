@@ -22,10 +22,11 @@ public class ConnectWebSocket {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectWebSocket.class);
     
     private final WebSocketBroadcaster broadcaster;
-    private final TimeMaster timeMaster = new TimeMaster();
+    private final TimeMaster timeMaster;
     
     public ConnectWebSocket(WebSocketBroadcaster broadcaster) { 
         this.broadcaster = broadcaster;
+        this.timeMaster = new TimeMaster(broadcaster);
         timeMaster.start();
     }
 
