@@ -1,6 +1,6 @@
 package web.brick;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.micronaut.websocket.WebSocketSession;
 
@@ -8,13 +8,13 @@ public class TimeMaster {
     private long timeOld;
     private long timeCounting;
     private long timeLast;
-    private ArrayList<User> users;
+    private HashMap<String, User> users;
 
     public TimeMaster() {
         this.timeOld = 0;
         this.timeCounting = 0;
         this.timeLast = System.currentTimeMillis();
-        this.users = new ArrayList<>();
+        this.users = new HashMap<>();
     }
 
     public void start() {
@@ -24,12 +24,14 @@ public class TimeMaster {
                 while (true) {
                     update();
                     long time = timeCounting + timeOld;
-                    for (User user : users) {
-                        user.syncTime(time);
+                    for (User user : users.values()) {
+                        try {
+                            user.syncTime(time);
+                        } catch (Exception e) {}
                     }
 
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -40,19 +42,19 @@ public class TimeMaster {
 
     public User newUser(WebSocketSession session, String id) {
         User user = new User(id, session);
-        users.add(user);
+        users.put(id, user);
         return user;
     }
 
     public void removeUser(User user) {
         timeOld += user.getTimeSinceJoined();
-        users.remove(user);
+        users.remove(user.getId());
     }
 
     private void update() {
         timeLast = System.currentTimeMillis();
         timeCounting = 0;
-        for (User user : users) {
+        for (User user : users.values()) {
             timeCounting += user.update(timeLast);
         }
     }
