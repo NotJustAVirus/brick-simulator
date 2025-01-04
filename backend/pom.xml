@@ -32,6 +32,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.micronaut</groupId>
       <artifactId>micronaut-http-server-netty</artifactId>
       <scope>compile</scope>

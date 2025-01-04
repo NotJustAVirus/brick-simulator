@@ -8,6 +8,7 @@ public class User {
     private String id;
     private long timeJoined;
     private long timeElapsed;
+    private long oldTime;
 
     public User(String id, WebSocketSession session) {
         this.id = id;
@@ -16,7 +17,7 @@ public class User {
     }
 
     public void syncTime() {
-        TimeSyncMessage message = new TimeSyncMessage(timeElapsed, false);
+        TimeSyncMessage message = new TimeSyncMessage(timeElapsed + oldTime, false);
         session.sendAsync(message);
     }
 
@@ -25,8 +26,8 @@ public class User {
         return timeElapsed;
     }
 
-    public long getTimeSinceJoined() {
-        return System.currentTimeMillis() - timeJoined;
+    public long getTotalTime() {
+        return System.currentTimeMillis() - timeJoined + oldTime;
     }
 
     @Override 
@@ -39,5 +40,9 @@ public class User {
 
     public String getId() {
         return id;
+    }
+
+    public void setOldTime(long oldTime) {
+        this.oldTime = oldTime;
     }
 }

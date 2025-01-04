@@ -1,0 +1,1 @@
+CREATE TABLE `brick_db`.`users` (`id` INT NOT NULL AUTO_INCREMENT , `uuid` VARCHAR(255) NOT NULL , `time` BIGINT NOT NULL , PRIMARY KEY (`id`), UNIQUE (`uuid`)) ENGINE = InnoDB;

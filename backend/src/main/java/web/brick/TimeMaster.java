@@ -14,7 +14,7 @@ public class TimeMaster {
     private final WebSocketBroadcaster broadcaster;
 
     public TimeMaster(WebSocketBroadcaster broadcaster) {
-        this.timeOld = 0;
+        this.timeOld = DatabaseManager.getInstance().getTotalTime();
         this.timeCounting = 0;
         this.timeLast = System.currentTimeMillis();
         this.users = new HashMap<>();
@@ -46,13 +46,21 @@ public class TimeMaster {
     }
 
     public User newUser(WebSocketSession session, String id) {
+        long time = DatabaseManager.getInstance().getUser(id);
         User user = new User(id, session);
+        if (time != -1) {
+            user.setOldTime(time);
+        }
         users.put(id, user);
         return user;
     }
 
     public void removeUser(User user) {
-        timeOld += user.getTimeSinceJoined();
+        long time = user.getTotalTime();
+        timeOld += time;
+        if (DatabaseManager.getInstance().addUser(user.getId(), time)) {
+            DatabaseManager.getInstance().updateUser(user.getId(), time);
+        }
         users.remove(user.getId());
     }
 
