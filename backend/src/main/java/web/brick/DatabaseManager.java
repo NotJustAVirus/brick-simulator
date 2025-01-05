@@ -2,17 +2,19 @@ package web.brick;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
-    private static final String DATABASE_URL = "jdbc:sqlite:database.db";
+    private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/brick_db";
     private Connection connection;
 
     private DatabaseManager() {
         try {
             connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/brick_db", "root", "admin");
+                DATABASE_URL, "root", "admin");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -27,8 +29,12 @@ public class DatabaseManager {
     
     public boolean setUserTime(String uuid, long time) {
         try {
-            connection.createStatement().executeUpdate(
-                "INSERT INTO users (uuid, time) VALUES ('" + uuid + "', " + time + ") ON DUPLICATE KEY UPDATE time = " + time + ";");
+            PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO users (uuid, time) VALUES (?, ?) ON DUPLICATE KEY UPDATE time = ?;");
+            statement.setString(1, uuid);
+            statement.setLong(2, time);
+            statement.setLong(3, time);
+            statement.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -38,8 +44,10 @@ public class DatabaseManager {
 
     public long getUserTime(String uuid) {
         try {
-            var resultSet = connection.createStatement().executeQuery(
-                "SELECT * FROM users WHERE uuid = '" + uuid + "'");
+            PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM users WHERE uuid = ?");
+            statement.setString(1, uuid);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getLong("time");
             }
@@ -51,7 +59,7 @@ public class DatabaseManager {
 
     public long getTotalTime() {
         try {
-            var resultSet = connection.createStatement().executeQuery(
+            ResultSet resultSet = connection.createStatement().executeQuery(
                 "SELECT SUM(time) FROM users");
             if (resultSet.next()) {
                 return resultSet.getLong(1);
