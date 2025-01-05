@@ -31,7 +31,7 @@ public class TimeMaster {
             public void run() {
                 while (true) {
                     try {
-                        update();
+                        timeCounting = getTotalTimeElapsed();
                         long time = timeCounting + timeOld;
                         broadcaster.broadcastAsync(new TimeSyncMessage(time, true));
 
@@ -65,6 +65,10 @@ public class TimeMaster {
         session.put("user", user);
         UserMessage newUserMessage = new UserMessage(uuid);
         session.sendAsync(newUserMessage);
+        TimeSyncMessage timeSyncMessage = new TimeSyncMessage(user.getTimeElapsed(System.currentTimeMillis()), false);
+        session.sendAsync(timeSyncMessage);
+        TimeSyncMessage timeSyncMessage2 = new TimeSyncMessage(timeCounting + timeOld, true);
+        session.sendAsync(timeSyncMessage2);
         broadcaster.broadcastAsync(new UserCountMessage(user.sessions(), false), user(uuid));
         broadcastUserCount();
         return user;
@@ -81,14 +85,15 @@ public class TimeMaster {
         }
     }
 
-    private void update() {
+    private long getTotalTimeElapsed() {
         timeLast = System.currentTimeMillis();
-        timeCounting = 0;
+        long totalTimeElapsed = 0;
         for (User user : users.values()) {
             long elapsed = user.getTimeElapsed(timeLast);
-            timeCounting += elapsed;
+            totalTimeElapsed += elapsed;
             broadcaster.broadcastAsync(new TimeSyncMessage(elapsed, false), user(user.getUuid()));
         }
+        return totalTimeElapsed;
     }
 
     private Predicate<WebSocketSession> user(String uuid) { 
