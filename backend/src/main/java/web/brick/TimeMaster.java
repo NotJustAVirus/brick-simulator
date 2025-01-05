@@ -1,11 +1,14 @@
 package web.brick;
 
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
 import web.brick.message.TimeSyncMessage;
+import web.brick.message.UserCountMessage;
+import web.brick.message.UserMessage;
 
 public class TimeMaster {
     private long timeOld;
@@ -30,7 +33,7 @@ public class TimeMaster {
                     try {
                         update();
                         long time = timeCounting + timeOld;
-                        broadcaster.broadcastSync(new TimeSyncMessage(time, true));
+                        broadcaster.broadcastAsync(new TimeSyncMessage(time, true));
 
                         clean();
 
@@ -59,6 +62,11 @@ public class TimeMaster {
             users.put(uuid, user);
         }
         user.addSession(new Session(session));
+        session.put("user", user);
+        UserMessage newUserMessage = new UserMessage(uuid);
+        session.sendAsync(newUserMessage);
+        broadcaster.broadcastAsync(new UserCountMessage(user.sessions(), false), user(uuid));
+        broadcastUserCount();
         return user;
     }
 
@@ -79,11 +87,32 @@ public class TimeMaster {
         for (User user : users.values()) {
             long elapsed = user.getTimeElapsed(timeLast);
             timeCounting += elapsed;
-            broadcaster.broadcastSync(new TimeSyncMessage(elapsed, false), user(user.getUuid()));
+            broadcaster.broadcastAsync(new TimeSyncMessage(elapsed, false), user(user.getUuid()));
         }
     }
 
     private Predicate<WebSocketSession> user(String uuid) { 
-        return s -> s.get("user", User.class).get().getUuid().equals(uuid);
+        return (s) -> {
+            try {
+                return s.get("user", User.class).get().getUuid().equals(uuid);
+            } catch (NoSuchElementException e) {
+                return false;
+            }
+        };
+    }
+
+    public void removeSession(WebSocketSession session) {
+        User user = session.get("user", User.class).get();
+        user.removeSession(session.getId());
+        broadcaster.broadcastAsync(new UserCountMessage(user.sessions(), false), user(user.getUuid()));
+        broadcastUserCount();
+    }
+
+    public void broadcastUserCount() {
+        int count = 0;
+        for (User user : users.values()) {
+            count += user.sessions();
+        }
+        broadcaster.broadcastAsync(new UserCountMessage(count, true));
     }
 }

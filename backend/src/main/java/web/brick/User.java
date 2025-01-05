@@ -21,6 +21,10 @@ public class User {
         return uuid;
     }
 
+    public int sessions() {
+        return sessions.size();
+    }
+
     public void removeSession(String id) {
         pastTime += sessions.get(id).getTimeElapsed(System.currentTimeMillis());
         sessions.remove(id);

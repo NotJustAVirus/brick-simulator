@@ -75,7 +75,7 @@ function render() {
 class Timer {
     time = 0;
     speed = 1;
-    interval = 200;
+    interval = 100;
     started = false;
 
     updatedTime = null;
@@ -163,6 +163,12 @@ class WebSocketHandler {
                 globalTimer.updateTime(parseInt(data.time));
             } else {
                 timer.updateTime(parseInt(data.time));
+            }
+        } else if (data.message === "userCount") {
+            if (data.isTotal) {
+                globalTimer.speed = data.userCount;
+            } else {
+                timer.speed = data.userCount;
             }
         }
     }
