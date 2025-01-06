@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
-    private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/brick_db";
+    private static final String DATABASE_URL = "jdbc:mysql://database:3306/brick_db";
     private Connection connection;
 
     private DatabaseManager() {

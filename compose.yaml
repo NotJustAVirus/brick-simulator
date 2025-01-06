@@ -16,23 +16,23 @@ services:
             #  - ./ssl:/etc/nginx/ssl
         # networks:
         #     - network1
-        # depends_on:
-        #     - backend
-    # backend:
-    #     build:
-    #         dockerfile: Dockerfile
-    #     networks:
-    #         - network1
-    #         - network2
-    #     environment:
-    #         DB_HOST: database    # This is correct - matches the service name
-    #         DB_PORT: 3306
-    #         DB_USER: root       # Using root as defined in MYSQL_ROOT_PASSWORD
-    #         DB_PASS: Hyg57aff   # Matches MYSQL_ROOT_PASSWORD
-    #         DB_NAME: persondb
-    #     depends_on:
-    #         database:
-    #             condition: service_healthy
+        depends_on:
+            - backend
+    backend:
+        build: ./backend
+        ports:
+            - '8080:8080'
+        # networks:
+        #     - network1
+        #     - network2
+        # environment:
+        #     DB_HOST: database    # This is correct - matches the service name
+        #     DB_PORT: 3306
+        #     DB_USER: root       # Using root as defined in MYSQL_ROOT_PASSWORD
+        #     DB_PASS: Hyg57aff   # Matches MYSQL_ROOT_PASSWORD
+        #     DB_NAME: persondb
+        depends_on:
+            - database
 
     database:
         image: mysql
