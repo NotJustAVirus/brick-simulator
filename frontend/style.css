@@ -22,3 +22,17 @@ body {
     left: 5%;
     color: white;
 }
+
+.label {
+    margin-top: 0.5em;
+    font-size: 1em;
+}
+
+#global-timer {
+    font-size: 1.5em;
+}
+
+.title {
+    font-size: 2em;
+    font-weight: 700;
+}

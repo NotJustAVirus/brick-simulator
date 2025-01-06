@@ -136,8 +136,8 @@ class WebSocketHandler {
         this.connect();
 
         setInterval(() => {
-            // this.websocket.send("ping");
-        }, 10000);
+            this.websocket.send(JSON.stringify({message: "ping"}));
+        }, 30000);
     }
 
     onOpen(event) {
