@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
-import java.util.function.Predicate;
 
 @ServerWebSocket("/ws/") 
 public class ConnectWebSocket {
@@ -66,11 +65,7 @@ public class ConnectWebSocket {
     }
 
     private void log(String event, WebSocketSession session) {
-        LOG.info("* WebSocket: {} received for session {} from '{}' regarding '{}'",
-            event, session.getId(), "username", "topic");
-    }
-
-    private Predicate<WebSocketSession> isValid() { 
-        return s -> true;
+        LOG.info("* WebSocket: {} on session {}",
+            event, session.getId());
     }
 }
