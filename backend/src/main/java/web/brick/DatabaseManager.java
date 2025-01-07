@@ -23,6 +23,17 @@ public class DatabaseManager {
     public static DatabaseManager getInstance() {
         if (instance == null) {
             instance = new DatabaseManager();
+        } else {
+            if (instance.connection == null) {
+                instance = new DatabaseManager();
+            }
+            try {
+                if (instance.connection.isClosed()) {
+                    instance = new DatabaseManager();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return instance;
     }

@@ -77,10 +77,11 @@ public class TimeMaster {
     private void clean() {
         for (User user : users.values()) {
             if (user.clean()) {
-                users.remove(user.getUuid());
                 long time = user.getTimeElapsed(0);
-                DatabaseManager.getInstance().setUserTime(user.getUuid(), time);
-                timeOld += time;
+                if (DatabaseManager.getInstance().setUserTime(user.getUuid(), time)) {
+                    users.remove(user.getUuid());
+                    timeOld += time;
+                }
             }
         }
     }
