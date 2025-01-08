@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
@@ -13,20 +14,23 @@ public class DatabaseManager {
 
     private DatabaseManager() {
         try {
+            Properties prop = new Properties();
+            prop.put("user", "root");
+            prop.put("password", "admin");
+            prop.put("autoReconnect", "true");
+            prop.put("maxReconnects", "5");
+            prop.put("initialTimeout", "5");
             connection = DriverManager.getConnection(
-                DATABASE_URL, "root", "admin");
+                DATABASE_URL, prop);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public static DatabaseManager getInstance() {
-        if (instance == null) {
+        if (instance == null || instance.connection == null) {
             instance = new DatabaseManager();
         } else {
-            if (instance.connection == null) {
-                instance = new DatabaseManager();
-            }
             try {
                 if (instance.connection.isClosed()) {
                     instance = new DatabaseManager();
