@@ -32,7 +32,7 @@ public class DatabaseManager {
             instance = new DatabaseManager();
         } else {
             try {
-                if (instance.connection.isClosed()) {
+                if (!instance.connection.isValid(1)) {
                     instance = new DatabaseManager();
                 }
             } catch (SQLException e) {
