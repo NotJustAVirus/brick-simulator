@@ -50,6 +50,8 @@ public class TimeMaster {
     }
 
     public User addSession(WebSocketSession session, String uuid) {
+        TimeSyncMessage timeSyncMessageTotal = new TimeSyncMessage(timeCounting + timeOld, true);
+        session.sendAsync(timeSyncMessageTotal);
         User user = users.get(uuid);
         if (user == null) {
             long time = DatabaseManager.getInstance().getUserTime(uuid);
@@ -67,8 +69,6 @@ public class TimeMaster {
         session.sendAsync(newUserMessage);
         TimeSyncMessage timeSyncMessage = new TimeSyncMessage(user.getTimeElapsed(System.currentTimeMillis()), false);
         session.sendAsync(timeSyncMessage);
-        TimeSyncMessage timeSyncMessage2 = new TimeSyncMessage(timeCounting + timeOld, true);
-        session.sendAsync(timeSyncMessage2);
         broadcaster.broadcastAsync(new UserCountMessage(user.sessions(), false), user(uuid));
         broadcastUserCount();
         return user;
@@ -81,6 +81,7 @@ public class TimeMaster {
                 if (DatabaseManager.getInstance().setUserTime(user.getUuid(), time)) {
                     users.remove(user.getUuid());
                     timeOld += time;
+                    timeCounting -= time;
                 }
             }
         }
