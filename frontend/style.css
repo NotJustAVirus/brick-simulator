@@ -3,6 +3,15 @@ body {
     background-color: #333;
     margin: 0;
     padding: 0;
+    color: white;
+}
+
+a {
+    color: tomato;
+}
+
+a:visited {
+    color: red;
 }
 
 .main {
@@ -11,16 +20,13 @@ body {
     position: relative;
 }
 
-#timer {
-    color: white;
+.title {
     font-size: 2em;
+    font-weight: 700;
 }
 
-.box {
-    position: absolute;
-    top: 5%;
-    left: 5%;
-    color: white;
+#timer {
+    font-size: 2em;
 }
 
 .label {
@@ -32,7 +38,15 @@ body {
     font-size: 1.5em;
 }
 
-.title {
-    font-size: 2em;
-    font-weight: 700;
+.box {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}
+
+.bottom-right {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 0.5em;
 }
