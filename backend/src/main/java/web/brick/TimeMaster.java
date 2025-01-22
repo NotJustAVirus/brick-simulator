@@ -87,6 +87,20 @@ public class TimeMaster {
         }
     }
 
+    public void shutdown() {
+        System.out.println("Shutting down");
+        long timeLast = System.currentTimeMillis();
+        for (User user : users.values()) {
+            long time = user.getTimeElapsed(timeLast);
+            if (DatabaseManager.getInstance().setUserTime(user.getUuid(), time)) {
+                timeOld += time;
+                timeCounting -= time;
+            } else {
+                System.out.println("Failed to save time for user " + user.getUuid());
+            }
+        }
+    }
+
     private long getTotalTimeElapsed() {
         timeLast = System.currentTimeMillis();
         long totalTimeElapsed = 0;

@@ -1,5 +1,7 @@
 package web.brick;
 
+import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.runtime.server.event.ServerShutdownEvent;
 import io.micronaut.serde.ObjectMapper;
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
@@ -62,6 +64,11 @@ public class ConnectWebSocket {
         log("onClose", session);
         timeMaster.removeSession(session);
         return;
+    }
+
+    @EventListener
+    public void onShutdownEvent(ServerShutdownEvent event) {
+        timeMaster.shutdown();
     }
 
     private void log(String event, WebSocketSession session) {
