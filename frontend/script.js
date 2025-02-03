@@ -49,6 +49,8 @@ function init() {
     // controls.enableZoom = false;
     controls.maxDistance = 100;
     controls.minDistance = 5;
+    controls.enableDamping = true;
+    controls.enablePan = false;
     controls.update();
     controls.autoRotate = true;
 
@@ -154,10 +156,10 @@ class WebSocketHandler {
 
     onMessage(event) {
         let data = JSON.parse(event.data);
-        console.log(data);
+        // console.log(data);
         if (data.message === "user") {
             this.uuid = data.uuid;
-            setCookie("uuid", this.uuid, 1);
+            setCookie("uuid", this.uuid, 365);
         } else if (data.message === "timeSync") {
             if (data.isTotalTime) {
                 globalTimer.updateTime(parseInt(data.time));
