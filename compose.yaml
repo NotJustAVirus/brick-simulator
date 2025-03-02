@@ -6,7 +6,7 @@ networks:
 
 volumes:
     database_data:
-        volume_name: brick_db_data
+        name: brick_db_data
 
 services:
     proxy:
