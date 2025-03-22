@@ -25,6 +25,7 @@ services:
     backend:
         build: ./backend
         container_name: brick_backend
+        restart: unless-stopped
         networks:
             - network1
             - network2
