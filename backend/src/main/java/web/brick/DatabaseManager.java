@@ -9,14 +9,17 @@ import java.util.Properties;
 
 public class DatabaseManager {
     private static DatabaseManager instance;
-    private static final String DATABASE_URL = "jdbc:mysql://database:3306/brick_db";
+    private final String DATABASE_URL;
     private Connection connection;
 
     private DatabaseManager() {
+        DATABASE_URL = System.getenv("BRICK_DB_URL");
+        String user = System.getenv("BRICK_DB_USER");
+        String password = System.getenv("BRICK_DB_PASSWORD");
         try {
             Properties prop = new Properties();
-            prop.put("user", "root");
-            prop.put("password", "admin");
+            prop.put("user", user);
+            prop.put("password", password);
             prop.put("autoReconnect", "true");
             prop.put("maxReconnects", "5");
             prop.put("initialTimeout", "5");

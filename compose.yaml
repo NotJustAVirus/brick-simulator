@@ -20,8 +20,9 @@ services:
              - ./nginx/conf.d:/etc/nginx/conf.d
         networks:
             - network1
-        depends_on:
-            - backend
+        # depends_on:
+        #     - backend
+    
     backend:
         build: ./backend
         container_name: brick_backend
@@ -29,12 +30,10 @@ services:
         networks:
             - network1
             - network2
-        # environment:
-        #     DB_HOST: database    # This is correct - matches the service name
-        #     DB_PORT: 3306
-        #     DB_USER: root       # Using root as defined in MYSQL_ROOT_PASSWORD
-        #     DB_PASS: Hyg57aff   # Matches MYSQL_ROOT_PASSWORD
-        #     DB_NAME: persondb
+        environment:
+            BRICK_DB_URL: jdbc:mysql://database:3306/brick_db
+            BRICK_DB_USER: root
+            BRICK_DB_PASSWORD: admin
         depends_on:
             database:
                 condition: service_healthy
