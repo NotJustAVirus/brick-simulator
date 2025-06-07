@@ -31,6 +31,12 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    let brickGeometry = new THREE.BoxGeometry(4.5, 2.15, 1.07);
+    let brickMaterial = new THREE.MeshStandardMaterial({ color: 0xb35325, roughness: 0.9});
+    let brickStandIn = new THREE.Mesh(brickGeometry, brickMaterial);
+    brickStandIn.rotation.x = Math.PI;
+    scene.add(brickStandIn);
+
     const loader = new GLTFLoader();
     loader.load('model/red_brick_low.glb', function (gltf) {
         let brick = gltf.scene.children[0];
@@ -38,6 +44,7 @@ function init() {
         brick.rotation.x = Math.PI;
         brick.scale.set(20, 20, 20);
         scene.add(brick);
+        scene.remove(brickStandIn);
         render();
     }, undefined, function (error) {
         console.error(error);
