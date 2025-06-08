@@ -31,24 +31,37 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    let brickGeometry = new THREE.BoxGeometry(4.5, 2.15, 1.07);
+    let brickGeometry = new THREE.BoxGeometry(4.5 / 20, 2.15 / 20, 1.07 / 20);
     let brickMaterial = new THREE.MeshStandardMaterial({ color: 0xb35325, roughness: 0.9});
     let brickStandIn = new THREE.Mesh(brickGeometry, brickMaterial);
-    brickStandIn.rotation.x = Math.PI;
-    scene.add(brickStandIn);
+    setBrick(brickStandIn);
 
     const loader = new GLTFLoader();
     loader.load('model/red_brick_low.glb', function (gltf) {
         let brick = gltf.scene.children[0];
-        // brick.position.set(0.8, -0.1, 0);
-        brick.rotation.x = Math.PI;
-        brick.scale.set(20, 20, 20);
-        scene.add(brick);
-        scene.remove(brickStandIn);
-        render();
+        setBrick(brick);
+        loader.load('model/red_brick_mid.glb', function (gltf) {
+            let midBrick = gltf.scene.children[0];
+            setBrick(midBrick);
+        }, undefined, function (error) {
+            console.error(error);
+        }); 
     }, undefined, function (error) {
         console.error(error);
     });
+
+    function setBrick(brick) {
+        scene.children.forEach((child) => {
+            if (child.name === "brick") {
+                scene.remove(child);
+            }
+        });
+        brick.rotation.x = Math.PI;
+        brick.scale.set(20, 20, 20);
+        brick.name = "brick";
+        scene.add(brick);
+        render();
+    }
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.addEventListener('change', render);
