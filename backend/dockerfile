@@ -1,15 +1,17 @@
 FROM maven:3.9.9-amazoncorretto-21-debian-bookworm AS build 
 # no i dont know why this is the tag, but it works
 
-WORKDIR /app
 COPY pom.xml .
+
+RUN mvn -B dependency:go-offline
+
+
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+RUN mvn -B package -DskipTests
 
-FROM openjdk:21-jdk
+FROM openjdk:21-slim-buster
 
-WORKDIR /app
-COPY --from=build /app/target/brick-server-0.1.jar ./
+COPY --from=build target/brick-server-0.1.jar .
 
-CMD ["java", "-jar", "brick-server-0.1.jar"]
+ENTRYPOINT ["java", "-jar", "brick-server-0.1.jar"]
